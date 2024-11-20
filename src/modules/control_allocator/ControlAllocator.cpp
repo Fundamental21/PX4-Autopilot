@@ -139,7 +139,9 @@ ControlAllocator::parameters_updated()
 }
 
 void
-ControlAllocator::update_allocation_method(bool force)
+ControlAllocator::
+
+update_allocation_method(bool force)
 {
 	AllocationMethod configured_method = (AllocationMethod)_param_ca_method.get();
 
@@ -444,6 +446,9 @@ ControlAllocator::Run()
 			}
 
 			_control_allocation[i]->clipActuatorSetpoint();
+			    // 4. 更新上一步的执行器设定值和控制设定值
+                        //prev_actuator_sp = _actuator_sp;
+                        //prev_control_sp = _control_sp;
 		}
 	}
 

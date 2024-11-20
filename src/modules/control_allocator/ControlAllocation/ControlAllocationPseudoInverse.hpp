@@ -46,6 +46,7 @@
 #pragma once
 
 #include "ControlAllocation.hpp"
+#include <matrix/matrix/math.hpp>
 
 class ControlAllocationPseudoInverse: public ControlAllocation
 {
@@ -73,4 +74,29 @@ private:
 	void normalizeControlAllocationMatrix();
 	void updateControlAllocationMatrixScale();
 	bool _normalization_needs_update{false};
+// modeify: new control allocation, define parameters
+	double theta1 = 0; // 假设 theta1 = 45 度  M_PI / 4
+	double theta2 = 0; // 假设 theta2 = 30 度  M_PI / 6
+	double theta3 = 0; // 假设 theta3 = 60 度  M_PI / 3
+	double f1 = 1; //
+	double f2 = 1; //
+	double f3 = 1; //
+
+	double L1 = 0.21;          // 假设 L1 =
+	double L2 = 0.79;          // 假设 L2 =
+	double L3 = 0.484;          // 假设 L3 =
+	// 定义 sin 和 cos 函数的简写
+	double sin_theta1 = sin(theta1);
+	double cos_theta1 = cos(theta1);
+	double sin_theta2 = sin(theta2);
+	double cos_theta2 = cos(theta2);
+	double sin_theta3 = sin(theta3);
+	double cos_theta3 = cos(theta3);
+
+	double scale1 = 0.5;
+	double scale2 = 0.5 * L1 / (L1+L2);
+	double scale3 = 0.5;
+	double scale4 = 0.5;
+	double scale5 = 1;
+	double scale6 = 0.5 * L1 / (L1+L2);
 };

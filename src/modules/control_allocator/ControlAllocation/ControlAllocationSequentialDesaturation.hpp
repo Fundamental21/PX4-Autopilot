@@ -47,6 +47,8 @@
 
 #include <px4_platform_common/module_params.h>
 
+#include <cmath>
+
 class ControlAllocationSequentialDesaturation: public ControlAllocationPseudoInverse, public ModuleParams
 {
 public:

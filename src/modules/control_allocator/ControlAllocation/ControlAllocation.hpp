@@ -230,7 +230,11 @@ public:
 
 protected:
 	friend class ControlAllocator; // for _actuator_sp
-
+        /*
+	defined in ControlAlloccation.hpp
+	static constexpr int NUM_ACTUATORS = 16;
+	static constexpr int NUM_AXES = 6;
+	*/
 	matrix::Matrix<float, NUM_AXES, NUM_ACTUATORS> _effectiveness;  ///< Effectiveness matrix
 	matrix::Vector<float, NUM_AXES> _control_allocation_scale;  	///< Scaling applied during allocation
 	matrix::Vector<float, NUM_ACTUATORS> _actuator_trim; 	///< Neutral actuator values
@@ -240,6 +244,7 @@ protected:
 	matrix::Vector<float, NUM_ACTUATORS> _prev_actuator_sp;  	///< Previous actuator setpoint
 	matrix::Vector<float, NUM_ACTUATORS> _actuator_sp;  	///< Actuator setpoint
 	matrix::Vector<float, NUM_AXES> _control_sp;   		///< Control setpoint
+	matrix::Vector<float, NUM_AXES> _prev_control_sp;        ///< Previous actuator setpoint
 	matrix::Vector<float, NUM_AXES> _control_trim; 		///< Control at trim actuator values
 	int _num_actuators{0};
 	bool _normalize_rpy{false};				///< if true, normalize roll, pitch and yaw columns

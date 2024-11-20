@@ -46,6 +46,7 @@ ControlAllocation::ControlAllocation()
 	_control_allocation_scale.setAll(1.f);
 	_actuator_min.setAll(0.f);
 	_actuator_max.setAll(1.f);
+  	_prev_control_sp.setAll(0.f);  // 初始化 prev_control_sp 为 0
 }
 
 void
@@ -61,6 +62,9 @@ ControlAllocation::setEffectivenessMatrix(
 	clipActuatorSetpoint(_actuator_trim);
 	_num_actuators = num_actuators;
 	_control_trim = _effectiveness * linearization_point_clipped;
+	    // 初始化 prev_control_sp 和 prev_actuator_sp
+   	_prev_control_sp = _control_trim;
+    	_prev_actuator_sp = _actuator_trim;
 }
 
 void

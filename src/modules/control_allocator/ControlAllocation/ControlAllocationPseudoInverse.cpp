@@ -41,6 +41,8 @@
 
 #include "ControlAllocationPseudoInverse.hpp"
 
+#include <cmath> // 用于 sin, cos 函数
+
 void
 ControlAllocationPseudoInverse::setEffectivenessMatrix(
 	const matrix::Matrix<float, ControlAllocation::NUM_AXES, ControlAllocation::NUM_ACTUATORS> &effectiveness,
@@ -56,6 +58,7 @@ ControlAllocationPseudoInverse::setEffectivenessMatrix(
 void
 ControlAllocationPseudoInverse::updatePseudoInverse()
 {
+	/*
 	if (_mix_update_needed) {
 		matrix::geninv(_effectiveness, _mix);
 
@@ -67,6 +70,82 @@ ControlAllocationPseudoInverse::updatePseudoInverse()
 		normalizeControlAllocationMatrix();
 		_mix_update_needed = false;
 	}
+        */
+
+       /*
+	meanings of rows in control_sp
+	enum ControlAxis {
+		ROLL = 0,
+		PITCH,
+		YAW,
+		THRUST_X,
+		THRUST_Y,
+		THRUST_Z
+	};
+		*/
+	// Pseudo Inverse based on previous actuator
+		f1 = _prev_control_sp(0);
+		f2 = _prev_control_sp(1);
+		f3 = _prev_control_sp(2);
+		theta1 = _prev_control_sp(3);
+		theta2 = _prev_control_sp(4);
+		theta3 = _prev_control_sp(5);
+		sin_theta1 = sin(theta1);
+		cos_theta1 = cos(theta1);
+		sin_theta2 = sin(theta2);
+		cos_theta2 = cos(theta2);
+		sin_theta3 = sin(theta3);
+		cos_theta3 = cos(theta3);
+
+	_mix(0, 0) = -cos_theta1;
+	_mix(0, 1) = cos_theta1;
+	_mix(0, 2) = -sin_theta1;
+	_mix(0, 3) = sin_theta1;
+	_mix(0, 4) = 0;
+	_mix(0, 5) = -(L2 / L1) * cos_theta1;
+
+	_mix(1, 0) = cos_theta2;
+	_mix(1, 1) = cos_theta2;
+	_mix(1, 2) = sin_theta2;
+	_mix(1, 3) = sin_theta2;
+	_mix(1, 4) = 0;
+	_mix(1, 5) = -(L2 / L1) * cos_theta2;
+
+	_mix(2, 0) = 0;
+	_mix(2, 1) = -2 * cos_theta3;
+	_mix(2, 2) = 0;
+	_mix(2, 3) = 0;
+	_mix(2, 4) = 0;
+	_mix(2, 5) = -2 * cos_theta3;
+
+	_mix(3, 0) = sin_theta1;
+	_mix(3, 1) = -sin_theta1;
+	_mix(3, 2) = -cos_theta1;
+	_mix(3, 3) = cos_theta1;
+	_mix(3, 4) = 0;
+	_mix(3, 5) = (L2 / L1) * sin_theta1;
+
+	_mix(4, 0) = -sin_theta2;
+	_mix(4, 1) = -sin_theta2;
+	_mix(4, 2) = cos_theta2;
+	_mix(4, 3) = cos_theta2;
+	_mix(4, 4) = 0;
+	_mix(4, 5) = (L2 / L1) * sin_theta2;
+
+	_mix(5, 0) = 0;
+	_mix(5, 1) = 2 * sin_theta3;
+	_mix(5, 2) = 0;
+	_mix(5, 3) = 0;
+	_mix(5, 4) = 0;
+	_mix(5, 5) = 2 * sin_theta3;
+
+	_mix.col(0) *= 0.5;
+	_mix.col(1) *= scale2;
+	_mix.col(2) *= 0.5;
+	_mix.col(3) *= 0.5;
+	_mix.col(4) *= 1;
+	_mix.col(5) *= scale6;
+
 }
 
 void
@@ -166,6 +245,60 @@ ControlAllocationPseudoInverse::normalizeControlAllocationMatrix()
 			}
 		}
 	}
+
+	// custom: replace control allocation matrix
+	// 新的 _mix 矩阵替换
+/*
+_mix(0, 0) = -cos_theta1;
+_mix(0, 1) = cos_theta1;
+_mix(0, 2) = -sin_theta1;
+_mix(0, 3) = sin_theta1;
+_mix(0, 4) = 0;
+_mix(0, 5) = -(L2 / L1) * cos_theta1;
+
+_mix(1, 0) = cos_theta2;
+_mix(1, 1) = cos_theta2;
+_mix(1, 2) = sin_theta2;
+_mix(1, 3) = sin_theta2;
+_mix(1, 4) = 0;
+_mix(1, 5) = -(L2 / L1) * cos_theta2;
+
+_mix(2, 0) = 0;
+_mix(2, 1) = -2 * cos_theta3;
+_mix(2, 2) = 0;
+_mix(2, 3) = 0;
+_mix(2, 4) = 0;
+_mix(2, 5) = -2 * cos_theta3;
+
+_mix(3, 0) = sin_theta1;
+_mix(3, 1) = -sin_theta1;
+_mix(3, 2) = -cos_theta1;
+_mix(3, 3) = cos_theta1;
+_mix(3, 4) = 0;
+_mix(3, 5) = (L2 / L1) * sin_theta1;
+
+_mix(4, 0) = -sin_theta2;
+_mix(4, 1) = -sin_theta2;
+_mix(4, 2) = cos_theta2;
+_mix(4, 3) = cos_theta2;
+_mix(4, 4) = 0;
+_mix(4, 5) = (L2 / L1) * sin_theta2;
+
+_mix(5, 0) = 0;
+_mix(5, 1) = 2 * sin_theta3;
+_mix(5, 2) = 0;
+_mix(5, 3) = 0;
+_mix(5, 4) = 0;
+_mix(5, 5) = 2 * sin_theta3;
+
+		_mix.col(0) *= 0.5;
+		_mix.col(1) *= scale2;
+		_mix.col(2) *= 0.5;
+		_mix.col(3) *= 0.5;
+		_mix.col(4) *= 1;
+		_mix.col(5) *= scale6;
+*/
+
 }
 
 void
@@ -177,5 +310,17 @@ ControlAllocationPseudoInverse::allocate()
 	_prev_actuator_sp = _actuator_sp;
 
 	// Allocate
-	_actuator_sp = _actuator_trim + _mix * (_control_sp - _control_trim);
+	// orginal: _actuator_sp = _actuator_trim + _mix * (_control_sp - _control_trim);
+	// new: dynamic control allocation
+	// Allocate based on the difference between control setpoints
+	_actuator_sp = _prev_actuator_sp + _mix * (_control_sp - _prev_control_sp);
+	// Update prev_control_sp to current control_sp for the next iteration
+        _prev_control_sp = _control_sp;
+	/*	c[0](0) = _torque_sp(0);
+		c[0](1) = _torque_sp(1);
+		c[0](2) = _torque_sp(2);
+		c[0](3) = _thrust_sp(0);
+		c[0](4) = _thrust_sp(1);
+		c[0](5) = _thrust_sp(2);
+	*/
 }
